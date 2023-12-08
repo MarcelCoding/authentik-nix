@@ -22,6 +22,7 @@ let
 in
 {
   imports = [
+    (lib.mkRenamedOptionModule [ "services" "authentik" "createDatabase" ] [ "services" "authentik" "postgres" "createDatabase" ])
     (lib.mkRenamedOptionModule [ "services" "authentik" "nginx" "enableACME" ] [ "services" "authentik" "nginx" "vhost" "enableACME" ])
   ];
   
@@ -41,9 +42,15 @@ in
         };
       };
 
-      createDatabase = mkOption {
-        type = types.bool;
-        default = true;
+      postgres = {
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+        };
+        createDatabase = mkOption {
+          type = types.bool;
+          default = true;
+        };
       };
 
       nginx = {
@@ -139,11 +146,11 @@ in
           enable = true;
           port = 6379;
         };
-        postgresql = {
+        postgresql = mkIf cfg.postgres.enable {
           enable = true;
           package = pkgs.postgresql_14;
-          ensureDatabases = mkIf cfg.createDatabase [ "authentik" ];
-          ensureUsers = mkIf cfg.createDatabase [
+          ensureDatabases = mkIf cfg.postgres.createDatabase [ "authentik" ];
+          ensureUsers = mkIf cfg.postgres.createDatabase [
             { name = "authentik"; ensureDBOwnership = true; }
           ];
         };
