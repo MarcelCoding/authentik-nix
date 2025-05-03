@@ -1,7 +1,7 @@
 {
   lib,
   krb5,
-  libpq,
+  postgresql,
 }:
 
 let
@@ -56,10 +56,10 @@ let
       }:
       {
         buildInputs = buildInputs ++ [
-          libpq
+          postgresql
         ];
         nativeBuildInputs = nativeBuildInputs ++ [
-          libpq.pg_config
+          postgresql.dev
         ];
       }
     );
