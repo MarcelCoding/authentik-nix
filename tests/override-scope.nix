@@ -18,6 +18,11 @@
 */
 
 let
+  # use a root-owned EnvironmentFile in production instead (services.authentik.environmentFile)
+  authentik-env = pkgs.writeText "authentik-test-secret-env" ''
+    AUTHENTIK_SECRET_KEY=thissecretwillbeinthenixstore
+  '';
+
   customWelcome = "Welcome to custom authentik";
 
   # creates a new scope using python 3.12 for mkPoetryEnv
@@ -56,18 +61,9 @@ pkgs.nixosTest {
         "${pkgs.path}/nixos/tests/common/x11.nix"
       ];
 
-      # Keep in mind that the secret still ends up in the store and is world-readable because the
-      # systemd-tmpfiles config lands in the store.
-      # This is just a trick to not pass a store-path (which is prohibited) to `environmentFile`
-      # without having to integrate secret managers like agenix or sops-nix into the test.
-      # Don't do this in production.
-      systemd.tmpfiles.rules = [
-        "f /etc/authentik.env 0700 root root - AUTHENTIK_SECRET_KEY=notastorepath"
-      ];
-
       services.authentik = {
         enable = true;
-        environmentFile = "/etc/authentik.env";
+        environmentFile = authentik-env;
         nginx = {
           enable = true;
           host = "localhost";
