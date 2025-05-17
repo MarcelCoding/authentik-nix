@@ -128,7 +128,7 @@ in
       enable = mkEnableOption "authentik Proxy outpost";
 
       environmentFile = mkOption {
-        type = types.nullOr pathToSecret;
+        type = types.nullOr types.path;
         default = null;
         example = "/run/secrets/authentik-proxy/authentik-proxy-env";
         description = ''
