@@ -31,7 +31,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
 
     napalm = {
       url = "github:willibutz/napalm/avoid-foldl-stack-overflow";
