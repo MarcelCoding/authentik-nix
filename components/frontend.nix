@@ -1,29 +1,48 @@
-{
-  authentik-src,
-  authentik-version,
-  authentikComponents,
-  buildNapalmPackage,
-  nodejs_24,
+{ authentik-src
+, authentik-version
+, authentikComponents
+, buildNpmPackage
+, nodejs_24
+,
 }:
-buildNapalmPackage "${authentik-src}/web" rec {
+
+buildNpmPackage {
+  pname = "authentik-web";
   version = authentik-version; # 0.0.0 specified upstream in package.json
-  NODE_ENV = "production";
+
+  src = "${authentik-src}/web";
+
   nodejs = nodejs_24;
+
+  npmDepsFetcherVersion = 2;
+  npmDepsHash = "sha256-as04aStHpl/bnwQmomCxhSxlGxD602UF0CZ51T/glVA=";
+
+  env = {
+    NODE_ENV = "production";
+    CHROMEDRIVER_SKIP_DOWNLOAD = "true";
+  };
+
   preBuild = ''
     ln -sv ${authentikComponents.docs} ../website
     ln -sv ${authentik-src}/package.json ../
   '';
-  # upstream does not clearly separate development dependencies
-  # from release build dependencies, therefore this workaround
-  CHROMEDRIVER_SKIP_DOWNLOAD = "true";
-  npmCommands = [
-    "npm install --include=dev --nodedir=${nodejs}/include/node --loglevel verbose --ignore-scripts"
-    "npm run build"
-    "npm run build:sfe"
-  ];
-  installPhase = ''
+
+  buildPhase = ''
+    runHook preBuild
+    
+    npm run build
+    npm run build:sfe
+    
+    runHook postBuild
+  '';
+
+  installPhase = ''    
+    runHook preInstall
+
     mkdir $out
     mv dist $out/dist
-    cp -r authentik icons $out
+    cp -r authentik icons $out    
+
+    runHook postInstall
   '';
 }
