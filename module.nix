@@ -1,8 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
+{ config
+, lib
+, pkgs
+, ...
 }:
 let
   inherit (lib)
@@ -326,6 +325,20 @@ in
                 path = "/var/lib/authentik";
               };
             };
+            events.context_processors =
+              let
+                geoip = pkgs.fetchFromGitHub {
+                  owner = "P3TERX";
+                  repo = "GeoLite.mmdb";
+                  # 2026.05.04
+                  rev = "8e1b07d4ee2a6b6b1823ce620995041d9bd1f6bd";
+                  hash = "sha256-pJpYKBMWMi8Bkm/VB3fmPoSWJ3rs6msQQfz6SMs+mmY=";
+                };
+              in
+              {
+                gepip = "${geoip}/GeoLite2-City.mmdb";
+                asn = "${geoip}/GeoLite2-ASN.mmdb";
+              };
           };
           postgresql = mkIf cfg.createDatabase {
             enable = true;
