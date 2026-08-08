@@ -2,27 +2,35 @@
   authentik-src,
   authentik-version,
   authentikComponents,
-  buildNpmPackage,
+  stdenv,
+  pnpm_11,
+  pnpmConfigHook,
+  fetchPnpmDeps,
   nodejs_26,
 }:
 
-buildNpmPackage {
+let
+  nodejs = nodejs_26;
+  pnpm = pnpm_11.override { nodejs-slim = nodejs; };
+in
+stdenv.mkDerivation (finalAttrs: {
   pname = "authentik-web";
   version = authentik-version; # 0.0.0 specified upstream in package.json
 
   src = "${authentik-src}/web";
 
-  nodejs = nodejs_26;
-
-  npmDepsFetcherVersion = 2;
-  npmDepsHash = "sha256-YL25ZEU9doL5Gkj2b+sh/9ms2Quso8uv1Ks43dmPyIY=";
-
-  env.NODE_ENV = "production";
-
-  npmFlags = [
-    "--ignore-scripts"
-    "--legacy-peer-deps"
+  nativeBuildInputs = [
+    nodejs_26
+    pnpmConfigHook
+    pnpm
   ];
+
+  pnpmDeps = fetchPnpmDeps {
+    inherit (finalAttrs) pname version src;
+    inherit pnpm;
+    fetcherVersion = 4;
+    hash = "sha256-2Rdgj4H/rk8qgQmbbjj5OG12iIgKbldIP5+6KfdWfks=";
+  };
 
   postPatch = ''
     rm packages/client-ts
@@ -49,8 +57,8 @@ buildNpmPackage {
 
     mkdir $out
     mv dist $out/dist
-    cp -r authentik icons $out
+    cp -r authentik $out
 
     runHook postInstall
   '';
-}
+})

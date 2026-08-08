@@ -7,6 +7,7 @@
   go,
   perl,
   gcc13,
+  cacert,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
@@ -17,9 +18,9 @@ rustPlatform.buildRustPackage (finalAttrs: {
   __structuredAttrs = true;
   strictDeps = true;
 
-  env.RUSTFLAGS="--cfg tokio_unstable";
+  env.RUSTFLAGS = "--cfg tokio_unstable";
 
-  cargoHash = "sha256-bpS1cXIG8srVE4tTS1rXL6R+ZBE65BZTlMghSPiAJy4=";
+  cargoHash = "sha256-nClhO2uB/glXymdgrg0ccRc+dG23XY6C5gcYYDfleNc=";
   nativeBuildInputs = [
     authentikComponents.pythonEnv
     cmake
@@ -36,4 +37,17 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "core"
     "--locked"
   ];
+
+  nativeCheckInputs = [
+    cacert
+  ];
+
+  checkFlags = [
+    # requieres db with migrations applied
+    "--skip=outpost::proxy::session::postgres::tests::save_load_expire_logout"
+  ];
+
+  preBuild = ''
+    ln -s ${authentikComponents.frontend}/dist web/dist
+  '';
 })
