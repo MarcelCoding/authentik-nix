@@ -1,7 +1,7 @@
 {
   authentik-src,
   authentik-version,
-  stdenv,
+  stdenvNoCC,
   pnpm_11,
   pnpmConfigHook,
   fetchPnpmDeps,
@@ -12,7 +12,7 @@ let
   nodejs = nodejs_26;
   pnpm = pnpm_11.override { nodejs-slim = nodejs; };
 in
-stdenv.mkDerivation (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "authentik-docs";
   version = authentik-version; # 0.0.0 specified upstream in package.json
 

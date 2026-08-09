@@ -1,4 +1,5 @@
 {
+  lib,
   authentik-src,
   authentik-version,
   rustPlatform,
@@ -6,11 +7,12 @@
   cmake,
   go,
   perl,
-  gcc13,
+  clangStdenv,
   cacert,
+  python,
 }:
 
-rustPlatform.buildRustPackage (finalAttrs: {
+(rustPlatform.buildRustPackage.override { stdenv = clangStdenv; }) (finalAttrs: {
   pname = "authentik-rust";
   version = authentik-version;
   src = authentik-src;
@@ -18,16 +20,20 @@ rustPlatform.buildRustPackage (finalAttrs: {
   __structuredAttrs = true;
   strictDeps = true;
 
-  env.RUSTFLAGS = "--cfg tokio_unstable";
+  env = {
+    RUSTFLAGS = "--cfg tokio_unstable";
+    HOST_CC = "clang";
+    PYO3_PYTHON = lib.getExe python;
+  };
 
   cargoHash = "sha256-nClhO2uB/glXymdgrg0ccRc+dG23XY6C5gcYYDfleNc=";
   nativeBuildInputs = [
-    authentikComponents.pythonEnv
     cmake
     go
     perl
-    gcc13
   ];
+
+  buildInputs = [ python ];
 
   cargoBuildFlags = [
     "--package"
