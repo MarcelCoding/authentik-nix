@@ -7,9 +7,11 @@
   cmake,
   go,
   perl,
+  pkg-config,
   clangStdenv,
   cacert,
   python,
+  zstd,
 }:
 
 # this adds a clang to the build environment, but it does not changes the compiler
@@ -25,6 +27,7 @@
   env = {
     RUSTFLAGS = "--cfg tokio_unstable";
     PYO3_PYTHON = lib.getExe python;
+    ZSTD_SYS_USE_PKG_CONFIG = "1";
 
     # aws-lc-fips-sys has its own env var to ignore the compiler provided by cargo
     AWS_LC_FIPS_SYS_HOST_CC = "${clangStdenv.cc}/bin/${clangStdenv.cc.targetPrefix}cc";
@@ -40,7 +43,10 @@
     perl
   ];
 
-  buildInputs = [ python ];
+  buildInputs = [
+    python
+    zstd
+  ];
 
   cargoBuildFlags = [
     "--package"
