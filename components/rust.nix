@@ -31,7 +31,7 @@
     AWS_LC_FIPS_SYS_HOST_CXX = "${clangStdenv.cc}/bin/${clangStdenv.cc.targetPrefix}c++";
   };
 
-  cargoHash = "sha256-nClhO2uB/glXymdgrg0ccRc+dG23XY6C5gcYYDfleNc=";
+  cargoHash = "sha256-LuUAzDsxiV/Bt+aCr0aUxCHUwN9F0Fw7M51Kmh/By/Q=";
   nativeBuildInputs = [
     pkg-config
     # for aws-lc-fips-sys
