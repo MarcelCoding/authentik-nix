@@ -12,7 +12,9 @@
   python,
 }:
 
-(rustPlatform.buildRustPackage.override { stdenv = clangStdenv; }) (finalAttrs: {
+# this adds a clang to the build environment, but it does not changes the compiler
+# cargo hands over to build scripts o crates: see AWS_LC_FIPS_SYS_HOST_CC
+(rustPlatform.buildRustPackage.override { stdenv = clangStdenv; }) {
   pname = "authentik-rust";
   version = authentik-version;
   src = authentik-src;
@@ -22,12 +24,17 @@
 
   env = {
     RUSTFLAGS = "--cfg tokio_unstable";
-    HOST_CC = "clang";
     PYO3_PYTHON = lib.getExe python;
+
+    # aws-lc-fips-sys has its own env var to ignore the compiler provided by cargo
+    AWS_LC_FIPS_SYS_HOST_CC = "${clangStdenv.cc}/bin/${clangStdenv.cc.targetPrefix}cc";
+    AWS_LC_FIPS_SYS_HOST_CXX = "${clangStdenv.cc}/bin/${clangStdenv.cc.targetPrefix}c++";
   };
 
   cargoHash = "sha256-nClhO2uB/glXymdgrg0ccRc+dG23XY6C5gcYYDfleNc=";
   nativeBuildInputs = [
+    pkg-config
+    # for aws-lc-fips-sys
     cmake
     go
     perl
@@ -56,4 +63,4 @@
   preBuild = ''
     ln -s ${authentikComponents.frontend}/dist web/dist
   '';
-})
+}
